@@ -1,0 +1,11 @@
+{
+  "key-bindings": {
+    "push_to_buffer": "<shift>+<ctrl>+i",
+    "pop_buffer": "<shift>+<ctrl>+p",
+    "commit": "<shift>+<ctrl>+l",
+    "revert": "<shift>+<ctrl>+r"
+  },
+  "no-result-to-screen": true,
+  "log-level": "WARNING",
+  "language": "en"
+}
