@@ -40,14 +40,38 @@ class TransparentCommitHandler(AbstractCommitHandler):
             callback(data)
 
 
-class GoogleTranslationCommitHandler(AbstractCommitHandler):
+class AsyncTranslationCommitHandler(AbstractCommitHandler):
     def commit(self, data: AnyStr) -> None:
         self.logger.debug('Async invoke translator.')
         thread = threading.Thread(target=lambda: self.work(data))
         thread.start()
 
     def work(self, data: AnyStr):
-        result = translators.google(query_text=data,to_language='zh-CN')
+        result = translators.google(query_text=data, to_language='zh-CN')
         for callback_name, callback in self.callbacks.items():
             self.logger.debug(f'Callback {callback_name} invoked.')
             callback(result)
+
+    @abstractmethod
+    def translate(self, data: AnyStr) -> AnyStr:
+        pass
+
+
+class GoogleTranslationCommitHandler(AsyncTranslationCommitHandler):
+    def translate(self, data: AnyStr) -> AnyStr:
+        return translators.google(query_text=data, to_language='zh-CN')
+
+
+class BingTranslationCommitHandler(AsyncTranslationCommitHandler):
+    def translate(self, data: AnyStr) -> AnyStr:
+        return translators.bing(query_text=data, to_language='zh-Hans')
+
+
+class BaiduTranslationCommitHandler(AsyncTranslationCommitHandler):
+    def translate(self, data: AnyStr) -> AnyStr:
+        return translators.baidu(query_text=data, to_language='zh')
+
+
+class TencentTranslationCommitHandler(AsyncTranslationCommitHandler):
+    def translate(self, data: AnyStr) -> AnyStr:
+        return translators.tencent(query_text=data, to_language='zh')
