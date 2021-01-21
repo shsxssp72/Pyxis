@@ -1,7 +1,7 @@
 {
   "key-bindings": {
     "push_to_buffer": "<shift>+<ctrl>+i",
-    "pop_buffer": "<shift>+<ctrl>+p",
+    "pop_buffer": "<shift>+<ctrl>+e",
     "commit": "<shift>+<ctrl>+l",
     "revert": "<shift>+<ctrl>+r"
   },
