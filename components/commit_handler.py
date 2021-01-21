@@ -34,6 +34,10 @@ class AbstractCommitHandler(ICommitHandler, LoggingBase, ABC):
 
 
 class TransparentCommitHandler(AbstractCommitHandler):
+    # kwargs: Make compatible with AsyncTranslationCommitHandler
+    def __init__(self, **kwargs):
+        super().__init__()
+
     def commit(self, data: AnyStr) -> None:
         for callback_name, callback in self.callbacks.items():
             self.logger.debug(f'Callback {callback_name} invoked.')
@@ -102,4 +106,5 @@ translation_providers: Dict[AnyStr, ICommitHandler.__class__] = {
     'bing': BingTranslationCommitHandler,
     'baidu': BaiduTranslationCommitHandler,
     'tencent': TencentTranslationCommitHandler,
+    'transparent': TransparentCommitHandler,
 }
