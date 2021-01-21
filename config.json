@@ -5,7 +5,8 @@
     "commit": "<shift>+<ctrl>+l",
     "revert": "<shift>+<ctrl>+r"
   },
-  "no-result-to-screen": true,
+  "no-result-to-screen": false,
+  "no-result-to-clipboard": true,
   "log-level": "WARNING",
   "source-language": "en",
   "target-language": "zh",
