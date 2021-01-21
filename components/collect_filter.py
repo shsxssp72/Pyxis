@@ -2,14 +2,22 @@ import re
 from typing import AnyStr
 
 
-class WhitespaceLineBreakFilter(object):
+class WhitespaceFilter(object):
     @staticmethod
     def filter(input_text: AnyStr) -> AnyStr:
-        result = re.sub(r'\s|\n', '', input_text)
+        result = re.sub(r'\s', '', input_text)
+        return result
+
+
+class LineBreakFilter(object):
+    @staticmethod
+    def filter(input_text: AnyStr) -> AnyStr:
+        result = re.sub(r'\n', '', input_text)
         return result
 
 
 class AppendSpaceFilter(object):
     @staticmethod
     def filter(input_text: AnyStr) -> AnyStr:
-        return input_text + ' '
+        result = re.sub(r'\.\s*', '. ', input_text)
+        return result

@@ -5,7 +5,7 @@ from typing import AnyStr, Dict, Callable, List
 from bidict import bidict
 from sortedcontainers import SortedDict
 
-from components.collect_filter import WhitespaceLineBreakFilter, AppendSpaceFilter
+from components.collect_filter import WhitespaceFilter, AppendSpaceFilter, LineBreakFilter
 from components.commit_handler import ICommitHandler
 from components.sink import ISink, ScreenSink
 from utils.logging_base import LoggingBase
@@ -111,10 +111,12 @@ class MemoryDataStorage(AbstractDataStorage):
 class DefaultZhMemoryDataStorage(MemoryDataStorage):
     def __init__(self):
         super().__init__()
-        self.register_collect_filter('remove_white_space', 0, WhitespaceLineBreakFilter.filter)
+        self.register_collect_filter('remove_white_space', 0, WhitespaceFilter.filter)
+        self.register_collect_filter('remove_line_break', 1, LineBreakFilter.filter)
 
 
 class DefaultEnMemoryDataStorage(MemoryDataStorage):
     def __init__(self):
         super().__init__()
-        self.register_collect_filter('append_space', 0, AppendSpaceFilter.filter)
+        self.register_collect_filter('remove_line_break', 0, LineBreakFilter.filter)
+        self.register_collect_filter('append_space', 1, AppendSpaceFilter.filter)
