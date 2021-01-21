@@ -7,5 +7,7 @@
   },
   "no-result-to-screen": true,
   "log-level": "WARNING",
-  "language": "en"
+  "source-language": "en",
+  "target-language": "zh",
+  "translation-provider": "google"
 }

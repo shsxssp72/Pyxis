@@ -41,13 +41,17 @@ class TransparentCommitHandler(AbstractCommitHandler):
 
 
 class AsyncTranslationCommitHandler(AbstractCommitHandler):
+    def __init__(self, target_language: AnyStr):
+        super().__init__()
+        self.target_language: AnyStr = target_language
+
     def commit(self, data: AnyStr) -> None:
         self.logger.debug('Async invoke translator.')
         thread = threading.Thread(target=lambda: self.work(data))
         thread.start()
 
     def work(self, data: AnyStr):
-        result = translators.google(query_text=data, to_language='zh-CN')
+        result = self.translate(data=data)
         for callback_name, callback in self.callbacks.items():
             self.logger.debug(f'Callback {callback_name} invoked.')
             callback(result)
@@ -59,19 +63,43 @@ class AsyncTranslationCommitHandler(AbstractCommitHandler):
 
 class GoogleTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
-        return translators.google(query_text=data, to_language='zh-CN')
+        if self.target_language == 'zh':
+            to_language: AnyStr = 'zh-CN'
+        else:
+            to_language: AnyStr = 'en'
+        return translators.google(query_text=data, to_language=to_language)
 
 
 class BingTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
-        return translators.bing(query_text=data, to_language='zh-Hans')
+        if self.target_language == 'zh':
+            to_language: AnyStr = 'zh-Hans'
+        else:
+            to_language: AnyStr = 'en'
+        return translators.bing(query_text=data, to_language=to_language)
 
 
 class BaiduTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
-        return translators.baidu(query_text=data, to_language='zh')
+        if self.target_language == 'zh':
+            to_language: AnyStr = 'zh'
+        else:
+            to_language: AnyStr = 'en'
+        return translators.baidu(query_text=data, to_language=to_language)
 
 
 class TencentTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
-        return translators.tencent(query_text=data, to_language='zh')
+        if self.target_language == 'zh':
+            to_language: AnyStr = 'zh'
+        else:
+            to_language: AnyStr = 'en'
+        return translators.tencent(query_text=data, to_language=to_language)
+
+
+translation_providers: Dict[AnyStr, ICommitHandler.__class__] = {
+    'google': GoogleTranslationCommitHandler,
+    'bing': BingTranslationCommitHandler,
+    'baidu': BaiduTranslationCommitHandler,
+    'tencent': TencentTranslationCommitHandler,
+}
