@@ -1,11 +1,14 @@
 {
   "key-bindings": {
     "push_to_buffer": "<shift>+<ctrl>+i",
-    "pop_buffer": "<shift>+<ctrl>+p",
-    "commit": "<shift>+<ctrl>+l",
-    "revert": "<shift>+<ctrl>+r"
+    "pop_buffer": "<shift>+<ctrl>+e",
+    "commit": "<shift>+<ctrl>+m",
+    "revert": "<shift>+<ctrl>+q"
   },
-  "no-result-to-screen": true,
+  "no-result-to-screen": false,
+  "no-result-to-clipboard": true,
   "log-level": "WARNING",
-  "language": "en"
+  "source-language": "en",
+  "target-language": "zh",
+  "translation-provider": "google"
 }

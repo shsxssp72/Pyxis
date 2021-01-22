@@ -1,6 +1,7 @@
 from abc import abstractmethod, ABC
 from pathlib import Path
 from typing import AnyStr, List
+import pyperclip
 
 from utils.logging_base import LoggingBase
 
@@ -37,7 +38,7 @@ class FileSink(AbstractSink):
         self.appended_length_stack: List[int] = []
 
     def append_data(self, data: AnyStr) -> None:
-        mode='a' if Path(self.file_path).exists() else 'w'
+        mode = 'a' if Path(self.file_path).exists() else 'w'
         with open(file=self.file_path, mode=mode) as output:
             output.write(data)
             self.appended_length_stack.append(data.count('\n'))
@@ -49,3 +50,19 @@ class FileSink(AbstractSink):
             for line in lines[:-self.appended_length_stack[-1]]:
                 output.write(line + '\n')
             self.appended_length_stack.pop(-1)
+
+
+class ClipboardSink(AbstractSink):
+    def __init__(self):
+        super().__init__()
+        self.clipboard_history: List[AnyStr] = []
+
+    def append_data(self, data: AnyStr) -> None:
+        self.clipboard_history.append(pyperclip.paste())
+        pyperclip.copy(data)
+
+    def revert(self) -> None:
+        if len(self.clipboard_history) == 0:
+            self.logger.warning('clipboard_history is empty')
+        else:
+            pyperclip.copy(self.clipboard_history.pop())

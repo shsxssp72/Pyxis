@@ -5,9 +5,9 @@ from typing import AnyStr, Dict, Callable, List
 from bidict import bidict
 from sortedcontainers import SortedDict
 
-from components.collect_filter import WhitespaceLineBreakFilter, AppendSpaceFilter
+from components.collect_filter import WhitespaceFilter, AppendSpaceFilter, LineBreakFilter
 from components.commit_handler import ICommitHandler
-from components.sink import ISink, ScreenSink
+from components.sink import ISink
 from utils.logging_base import LoggingBase
 
 
@@ -96,9 +96,12 @@ class MemoryDataStorage(AbstractDataStorage):
         self.working_space.append(self.on_push_to_buffer(text))
 
     def pop_buffer(self) -> None:
-        self.working_space.pop()
+        if len(self.working_space) > 0:
+            self.working_space.pop()
 
     def commit(self) -> None:
+        if len(self.working_space) == 0:
+            return
         for commit_handler_name, commit_handler in self.commit_handlers.items():
             self.logger.debug(f'Commit handler {commit_handler_name} called.')
             commit_handler.commit(''.join(self.working_space))
@@ -108,10 +111,12 @@ class MemoryDataStorage(AbstractDataStorage):
 class DefaultZhMemoryDataStorage(MemoryDataStorage):
     def __init__(self):
         super().__init__()
-        self.register_collect_filter('remove_white_space', 0, WhitespaceLineBreakFilter.filter)
+        self.register_collect_filter('remove_white_space', 0, WhitespaceFilter.filter)
+        self.register_collect_filter('remove_line_break', 1, LineBreakFilter.filter)
 
 
 class DefaultEnMemoryDataStorage(MemoryDataStorage):
     def __init__(self):
         super().__init__()
-        self.register_collect_filter('append_space', 0, AppendSpaceFilter.filter)
+        self.register_collect_filter('remove_line_break', 0, LineBreakFilter.filter)
+        self.register_collect_filter('append_space', 1, AppendSpaceFilter.filter)
