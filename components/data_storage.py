@@ -7,7 +7,7 @@ from sortedcontainers import SortedDict
 
 from components.collect_filter import WhitespaceFilter, AppendSpaceFilter, LineBreakFilter
 from components.commit_handler import ICommitHandler
-from components.sink import ISink, ScreenSink
+from components.sink import ISink
 from utils.logging_base import LoggingBase
 
 

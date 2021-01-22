@@ -2,8 +2,8 @@
   "key-bindings": {
     "push_to_buffer": "<shift>+<ctrl>+i",
     "pop_buffer": "<shift>+<ctrl>+e",
-    "commit": "<shift>+<ctrl>+l",
-    "revert": "<shift>+<ctrl>+r"
+    "commit": "<shift>+<ctrl>+m",
+    "revert": "<shift>+<ctrl>+q"
   },
   "no-result-to-screen": false,
   "no-result-to-clipboard": true,
