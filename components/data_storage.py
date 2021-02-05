@@ -53,11 +53,9 @@ class AbstractDataStorage(IDataStorage, LoggingBase, ABC):
 
     def register_collect_filter(self, filter_name: AnyStr, priority: int,
                                 collect_filter: Callable[[AnyStr], AnyStr]) -> None:
-        if filter_name in self.collect_filters_priority_map.keys():
-            raise RuntimeError('Duplicate filter name')
+        if filter_name in self.collect_filters_priority_map.keys() or priority in self.collect_filters.keys():
+            raise RuntimeError('Duplicate filter name or priority')
         self.collect_filters_priority_map[filter_name] = priority
-        if priority in self.collect_filters.keys():
-            raise RuntimeError('Duplicate filter priority')
         self.collect_filters[priority] = collect_filter
 
     def deregister_collect_filter(self, filter_name: AnyStr) -> None:
