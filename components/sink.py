@@ -2,6 +2,7 @@ from abc import abstractmethod, ABC
 from pathlib import Path
 from typing import AnyStr, List
 import pyperclip
+import shutil
 
 from utils.logging_base import LoggingBase
 
@@ -25,6 +26,7 @@ class ScreenSink(AbstractSink):
     def append_data(self, data: AnyStr) -> None:
         self.logger.debug('Sink data')
         print(data)
+        print(''.join('-' for _ in range(shutil.get_terminal_size().columns)))
 
     def revert(self) -> None:
         self.logger.debug('Revert data')
