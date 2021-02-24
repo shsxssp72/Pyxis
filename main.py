@@ -36,16 +36,13 @@ class Core(LoggingBase):
                                                                     event_handler=self.event_handler)
         self.event_listener.start()
 
-    def main_loop(self):
+    @staticmethod
+    def wait_for_event():
         try:
             while not time.sleep(60):
                 pass
         except KeyboardInterrupt:
-            confirm = input('Quit?')
-            if confirm.lower() == 'y':
-                pass
-            else:
-                self.main_loop()
+            pass
 
 
 def load_config(config_file_path: AnyStr):
@@ -84,4 +81,4 @@ if __name__ == '__main__':
                         datefmt='%Y-%m-%d %H:%M:%S')
 
     core = Core(config=app_config)
-    core.main_loop()
+    core.wait_for_event()

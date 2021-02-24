@@ -182,9 +182,6 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
         self.original_input.clear()
         return result
 
-    def __del__(self):
-        self.driver.quit()
-
 
 translation_providers: Dict[AnyStr, ICommitHandler.__class__] = {
     'google': GoogleTranslationCommitHandler,
