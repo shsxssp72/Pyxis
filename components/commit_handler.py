@@ -50,6 +50,15 @@ class TransparentCommitHandler(AbstractCommitHandler):
 
 
 class AsyncTranslationCommitHandler(AbstractCommitHandler):
+    class TranslatorReadyNoticeDecorator(object):
+        def __init__(self, cls):
+            self.cls = cls
+
+        def __call__(self, target_language: AnyStr):
+            entity: AsyncTranslationCommitHandler = self.cls(target_language)
+            entity.logger.info(f'{entity.__class__.__name__} ready')
+            return entity
+
     def __init__(self, target_language: AnyStr):
         super().__init__()
         self.target_language: AnyStr = target_language
@@ -70,6 +79,7 @@ class AsyncTranslationCommitHandler(AbstractCommitHandler):
         pass
 
 
+@AsyncTranslationCommitHandler.TranslatorReadyNoticeDecorator
 class GoogleTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
         if self.target_language == 'zh':
@@ -79,6 +89,7 @@ class GoogleTranslationCommitHandler(AsyncTranslationCommitHandler):
         return translators.google(query_text=data, to_language=to_language)
 
 
+@AsyncTranslationCommitHandler.TranslatorReadyNoticeDecorator
 class BingTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
         if self.target_language == 'zh':
@@ -88,6 +99,7 @@ class BingTranslationCommitHandler(AsyncTranslationCommitHandler):
         return translators.bing(query_text=data, to_language=to_language)
 
 
+@AsyncTranslationCommitHandler.TranslatorReadyNoticeDecorator
 class BaiduTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
         if self.target_language == 'zh':
@@ -97,6 +109,7 @@ class BaiduTranslationCommitHandler(AsyncTranslationCommitHandler):
         return translators.baidu(query_text=data, to_language=to_language)
 
 
+@AsyncTranslationCommitHandler.TranslatorReadyNoticeDecorator
 class TencentTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
         if self.target_language == 'zh':
@@ -124,6 +137,7 @@ class HeadlessBrowserTranslationCommitHandler(AsyncTranslationCommitHandler, ABC
         self.wait = WebDriverWait(self.driver, HeadlessBrowserConfig.page_load_timeout_secs)
 
 
+@AsyncTranslationCommitHandler.TranslatorReadyNoticeDecorator
 class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandler):
     available_language: Set[AnyStr] = {
         'auto', 'pl', 'de', 'ru',
@@ -171,7 +185,6 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
             '//textarea[contains(@dl-test,"translator-source-input")]')
         # Prevent translating status
         self.translating_status_indicators: Set[AnyStr] = {'[...]'}
-        self.logger.info('DeepL Ready')
 
     def translate(self, data: AnyStr) -> AnyStr:
         self.original_input.clear()

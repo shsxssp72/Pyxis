@@ -15,6 +15,7 @@ from utils.logging_base import LoggingBase
 class Core(LoggingBase):
     def __init__(self, config: Dict):
         super().__init__()
+        self.logger.info('Loading config')
         self.config: Dict = config
         if config['source-language'] == 'zh':
             self.data_storage: AbstractDataStorage = DefaultZhMemoryDataStorage()
@@ -34,15 +35,15 @@ class Core(LoggingBase):
         self.event_handler: IEventHandler = DefaultEventHandler(data_storage=self.data_storage)
         self.event_listener: IEventListener = KeyboardEventListener(key_bindings=self.config['key-bindings'],
                                                                     event_handler=self.event_handler)
+        self.logger.info('Event listener start')
         self.event_listener.start()
 
-    @staticmethod
-    def wait_for_event():
+    def wait_for_event(self):
         try:
             while not time.sleep(60):
                 pass
         except KeyboardInterrupt:
-            pass
+            self.logger.info('Quitting')
 
 
 def load_config(config_file_path: AnyStr):
