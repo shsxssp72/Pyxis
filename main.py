@@ -31,6 +31,7 @@ class Core(LoggingBase):
         self.data_storage.register_commit_handler(commit_handler_name=config['translation-provider'],
                                                   commit_handler=translation_providers.get(
                                                       config['translation-provider'].lower())(
+                                                      source_language=config['source-language'],
                                                       target_language=config['target-language']))
         self.event_handler: IEventHandler = DefaultEventHandler(data_storage=self.data_storage)
         self.event_listener: IEventListener = KeyboardEventListener(key_bindings=self.config['key-bindings'],

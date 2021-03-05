@@ -54,13 +54,14 @@ class AsyncTranslationCommitHandler(AbstractCommitHandler):
         def __init__(self, cls):
             self.cls = cls
 
-        def __call__(self, target_language: AnyStr):
-            entity: AsyncTranslationCommitHandler = self.cls(target_language)
+        def __call__(self, source_language: AnyStr, target_language: AnyStr):
+            entity: AsyncTranslationCommitHandler = self.cls(source_language, target_language)
             entity.logger.info(f'{entity.__class__.__name__} ready')
             return entity
 
-    def __init__(self, target_language: AnyStr):
+    def __init__(self, source_language: AnyStr, target_language: AnyStr):
         super().__init__()
+        self.source_language: AnyStr = source_language
         self.target_language: AnyStr = target_language
 
     def commit(self, data: AnyStr) -> None:
@@ -125,10 +126,11 @@ class HeadlessBrowserConfig(object):
 
 
 class HeadlessBrowserTranslationCommitHandler(AsyncTranslationCommitHandler, ABC):
-    def __init__(self, target_language: AnyStr):
-        super().__init__(target_language)
+    def __init__(self, source_language: AnyStr, target_language: AnyStr):
+        super().__init__(source_language, target_language)
         profile = webdriver.FirefoxProfile()
         profile.set_preference("browser.privatebrowsing.autostart", True)
+        profile.set_preference('network.proxy.type', 0)
         options = Options()
         options.add_argument("--headless")
         self.driver = webdriver.Firefox(firefox_profile=profile, options=options)
@@ -144,38 +146,41 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
         'fr', 'nl', 'pt', 'ja',
         'es', 'it', 'en', 'zh'
     }
+    # TODO make this configurable
+    # Prevent translating status
+    word_count_policy: Dict = {
+        'zh-en': (lambda x: len(x) * 1.2),
+        'en-zh': lambda x: int(len(x.split()) * 0.7)
+    }
 
-    class TextNotContainedInElement(object):
-        def __init__(self, locator, match_set: Set[AnyStr]):
+    class WhetherTranslatedDetectorByLength(object):
+        def __init__(self, locator, estimated_length: int):
             self.locator = locator
-            self.match_set: Set[AnyStr] = match_set
+            self.estimated_length: int = estimated_length
 
         def __call__(self, driver):
             try:
                 element_text: AnyStr = driver.find_element(*self.locator).get_attribute('value')
-                if element_text is not None and element_text.strip() != '':
-                    for match_item in self.match_set:
-                        if match_item in element_text:
-                            return False
-                        else:
-                            continue
+                if element_text is not None \
+                        and element_text.strip() != '' \
+                        and len(element_text) >= self.estimated_length:
                     return element_text
                 else:
                     return False
             except:
                 return False
 
-    def __init__(self, target_language: AnyStr):
-        super().__init__(target_language)
+    def __init__(self, source_language: AnyStr, target_language: AnyStr):
+        super().__init__(source_language, target_language)
         self.driver.get("https://www.deepl.com/translator")
         self.targetLanguageBtn = self.driver.find_element_by_xpath(
             "//button[contains(@dl-test,'translator-target-lang-btn')]")
-        # inputLanguageBtn = driver.find_element_by_xpath("//button[contains(@dl-test,'translator-source-lang-btn')]")
-        # inputLanguageBtn.click()
-        # wait.until(expected_conditions.presence_of_element_located(
-        #     (By.XPATH, '//div[contains(@dl-test,"translator-source-lang-list")]')))
-        # driver.find_element_by_xpath(
-        #     "//button[contains(@dl-test,'translator-lang-option-" + 'en' + "')]").click()
+        self.inputLanguageBtn = self.driver.find_element_by_xpath("//button[contains(@dl-test,'translator-source-lang-btn')]")
+        self.inputLanguageBtn.click()
+        self.wait.until(expected_conditions.presence_of_element_located(
+            (By.XPATH, '//div[contains(@dl-test,"translator-source-lang-list")]')))
+        self.driver.find_element_by_xpath(
+            f"//button[contains(@dl-test,'translator-lang-option-{self.source_language}')]").click()
         self.targetLanguageBtn.click()
         self.wait.until(expected_conditions.presence_of_element_located(
             (By.XPATH, '//div[contains(@dl-test,"translator-target-lang-list")]')))
@@ -183,15 +188,13 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
             f'//button[contains(@dl-test,"translator-lang-option-{self.target_language}")]').click()
         self.original_input = self.driver.find_element_by_xpath(
             '//textarea[contains(@dl-test,"translator-source-input")]')
-        # Prevent translating status
-        self.translating_status_indicators: Set[AnyStr] = {'[...]'}
 
     def translate(self, data: AnyStr) -> AnyStr:
         self.original_input.clear()
         self.original_input.send_keys(data)
-        result = self.wait.until(self.TextNotContainedInElement(
+        result = self.wait.until(self.WhetherTranslatedDetectorByLength(
             (By.XPATH, '//textarea[contains(@dl-test,"translator-target-input")]'),
-            self.translating_status_indicators))
+            self.word_count_policy[f'{self.source_language}-{self.target_language}'](data)))
         self.original_input.clear()
         return result
 
