@@ -7,8 +7,8 @@
   },
   "no-result-to-screen": false,
   "no-result-to-clipboard": true,
-  "log-level": "WARNING",
+  "log-level": "INFO",
   "source-language": "en",
   "target-language": "zh",
-  "translation-provider": "google"
+  "translation-provider": "deepl"
 }
