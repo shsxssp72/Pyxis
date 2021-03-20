@@ -121,8 +121,8 @@ class TencentTranslationCommitHandler(AsyncTranslationCommitHandler):
 
 
 class HeadlessBrowserConfig(object):
-    page_load_wait_secs: int = 5
-    page_load_timeout_secs: int = 10
+    page_load_wait_secs: int = 10
+    page_load_timeout_secs: int = 15
 
 
 class HeadlessBrowserTranslationCommitHandler(AsyncTranslationCommitHandler, ABC):
@@ -180,12 +180,12 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
         self.wait.until(expected_conditions.presence_of_element_located(
             (By.XPATH, '//div[contains(@dl-test,"translator-source-lang-list")]')))
         self.driver.find_element_by_xpath(
-            f"//button[contains(@dl-test,'translator-lang-option-{self.source_language}')]").click()
+            f"//div[contains(@dl-test,'translator-lang-option-{self.source_language}')]").click()
         self.targetLanguageBtn.click()
         self.wait.until(expected_conditions.presence_of_element_located(
             (By.XPATH, '//div[contains(@dl-test,"translator-target-lang-list")]')))
         self.driver.find_element_by_xpath(
-            f'//button[contains(@dl-test,"translator-lang-option-{self.target_language}")]').click()
+            f'//div[contains(@dl-test,"translator-lang-option-{self.target_language}")]').click()
         self.original_input = self.driver.find_element_by_xpath(
             '//textarea[contains(@dl-test,"translator-source-input")]')
 
