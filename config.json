@@ -11,6 +11,7 @@
   "source-language": "en",
   "target-language": "zh-ZH",
   "translation-provider": "deepl",
+  "headless": true,
   "deepl-target-language-btn-xpath": "//button[contains(@dl-test,'translator-target-lang-btn')]",
   "deepl-source-language-btn-xpath": "//button[contains(@dl-test,'translator-source-lang-btn')]",
   "deepl-target-language-list-xpath": "//div[contains(@dl-test,'translator-source-lang-list')]",

@@ -133,7 +133,8 @@ class HeadlessBrowserTranslationCommitHandler(AsyncTranslationCommitHandler, ABC
         profile.set_preference("browser.privatebrowsing.autostart", True)
         profile.set_preference('network.proxy.type', 0)
         options = Options()
-        #        options.add_argument("--headless")
+        if extra_config['headless']:
+            options.add_argument("--headless")
         self.driver = webdriver.Firefox(firefox_profile=profile, options=options)
         self.driver.implicitly_wait(HeadlessBrowserConfig.page_load_wait_secs)
         self.driver.set_page_load_timeout(HeadlessBrowserConfig.page_load_timeout_secs)
@@ -151,7 +152,7 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
     # Prevent translating status
     word_count_policy: Dict = {
         'zh-en': (lambda x: len(x) * 1.2),
-        'en-zh': lambda x: int(len(x.split()) * 0.7)
+        'en-zh-ZH': lambda x: int(len(x.split()) * 0.7)
     }
 
     class WhetherTranslatedDetectorByLength(object):
