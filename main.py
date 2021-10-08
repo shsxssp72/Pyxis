@@ -32,7 +32,8 @@ class Core(LoggingBase):
                                                   commit_handler=translation_providers.get(
                                                       config['translation-provider'].lower())(
                                                       source_language=config['source-language'],
-                                                      target_language=config['target-language']))
+                                                      target_language=config['target-language'],
+                                                      extra_config=config))
         self.event_handler: IEventHandler = DefaultEventHandler(data_storage=self.data_storage)
         self.event_listener: IEventListener = KeyboardEventListener(key_bindings=self.config['key-bindings'],
                                                                     event_handler=self.event_handler)
@@ -48,7 +49,7 @@ class Core(LoggingBase):
 
 
 def load_config(config_file_path: AnyStr):
-    with open(config_file_path, 'r')as config_input:
+    with open(config_file_path, 'r') as config_input:
         config_json = config_input.read()
     return json.loads(config_json)
 

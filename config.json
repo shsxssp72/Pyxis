@@ -9,6 +9,13 @@
   "no-result-to-clipboard": true,
   "log-level": "INFO",
   "source-language": "en",
-  "target-language": "zh",
-  "translation-provider": "deepl"
+  "target-language": "zh-ZH",
+  "translation-provider": "deepl",
+  "deepl-target-language-btn-xpath": "//button[contains(@dl-test,'translator-target-lang-btn')]",
+  "deepl-source-language-btn-xpath": "//button[contains(@dl-test,'translator-source-lang-btn')]",
+  "deepl-target-language-list-xpath": "//div[contains(@dl-test,'translator-source-lang-list')]",
+  "deepl-source-language-list-xpath": "//div[contains(@dl-test,'translator-source-lang-list')]",
+  "deepl-target-language-setting-xpath": "//button[contains(@dl-test,'translator-lang-option-{target_language}')]",
+  "deepl-source-language-setting-xpath": "//button[contains(@dl-test,'translator-lang-option-{source_language}')]",
+  "deepl-input-area-xpath": "//textarea[contains(@dl-test,'translator-source-input')]"
 }

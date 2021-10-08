@@ -54,15 +54,16 @@ class AsyncTranslationCommitHandler(AbstractCommitHandler):
         def __init__(self, cls):
             self.cls = cls
 
-        def __call__(self, source_language: AnyStr, target_language: AnyStr):
-            entity: AsyncTranslationCommitHandler = self.cls(source_language, target_language)
+        def __call__(self, source_language: AnyStr, target_language: AnyStr, extra_config: Dict):
+            entity: AsyncTranslationCommitHandler = self.cls(source_language, target_language, extra_config)
             entity.logger.info(f'{entity.__class__.__name__} ready')
             return entity
 
-    def __init__(self, source_language: AnyStr, target_language: AnyStr):
+    def __init__(self, source_language: AnyStr, target_language: AnyStr, extra_config: Dict):
         super().__init__()
         self.source_language: AnyStr = source_language
         self.target_language: AnyStr = target_language
+        self.extra_config: Dict = extra_config
 
     def commit(self, data: AnyStr) -> None:
         self.logger.debug('Async invoke translator.')
@@ -126,13 +127,13 @@ class HeadlessBrowserConfig(object):
 
 
 class HeadlessBrowserTranslationCommitHandler(AsyncTranslationCommitHandler, ABC):
-    def __init__(self, source_language: AnyStr, target_language: AnyStr):
-        super().__init__(source_language, target_language)
+    def __init__(self, source_language: AnyStr, target_language: AnyStr, extra_config: Dict):
+        super().__init__(source_language, target_language, extra_config)
         profile = webdriver.FirefoxProfile()
         profile.set_preference("browser.privatebrowsing.autostart", True)
         profile.set_preference('network.proxy.type', 0)
         options = Options()
-        options.add_argument("--headless")
+        #        options.add_argument("--headless")
         self.driver = webdriver.Firefox(firefox_profile=profile, options=options)
         self.driver.implicitly_wait(HeadlessBrowserConfig.page_load_wait_secs)
         self.driver.set_page_load_timeout(HeadlessBrowserConfig.page_load_timeout_secs)
@@ -170,24 +171,26 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
             except:
                 return False
 
-    def __init__(self, source_language: AnyStr, target_language: AnyStr):
-        super().__init__(source_language, target_language)
+    def __init__(self, source_language: AnyStr, target_language: AnyStr, extra_config: Dict):
+        super().__init__(source_language, target_language, extra_config)
         self.driver.get("https://www.deepl.com/translator")
-        self.targetLanguageBtn = self.driver.find_element_by_xpath(
-            "//button[contains(@dl-test,'translator-target-lang-btn')]")
-        self.inputLanguageBtn = self.driver.find_element_by_xpath("//button[contains(@dl-test,'translator-source-lang-btn')]")
-        self.inputLanguageBtn.click()
+
+        self.driver.find_element_by_xpath(self.extra_config['deepl-source-language-btn-xpath']).click()
         self.wait.until(expected_conditions.presence_of_element_located(
-            (By.XPATH, '//div[contains(@dl-test,"translator-source-lang-list")]')))
+            (By.XPATH, self.extra_config['deepl-source-language-list-xpath'])))
         self.driver.find_element_by_xpath(
-            f"//div[contains(@dl-test,'translator-lang-option-{self.source_language}')]").click()
-        self.targetLanguageBtn.click()
+            self.extra_config['deepl-source-language-setting-xpath']
+                .format(source_language=self.source_language)).click()
+
+        self.driver.find_element_by_xpath(self.extra_config['deepl-target-language-btn-xpath']).click()
         self.wait.until(expected_conditions.presence_of_element_located(
-            (By.XPATH, '//div[contains(@dl-test,"translator-target-lang-list")]')))
+            (By.XPATH, self.extra_config['deepl-target-language-list-xpath'])))
         self.driver.find_element_by_xpath(
-            f'//div[contains(@dl-test,"translator-lang-option-{self.target_language}")]').click()
+            self.extra_config['deepl-target-language-setting-xpath']
+                .format(target_language=self.target_language)).click()
+
         self.original_input = self.driver.find_element_by_xpath(
-            '//textarea[contains(@dl-test,"translator-source-input")]')
+            self.extra_config['deepl-input-area-xpath'])
 
     def translate(self, data: AnyStr) -> AnyStr:
         self.original_input.clear()

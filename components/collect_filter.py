@@ -12,8 +12,8 @@ class WhitespaceFilter(object):
 class LineBreakFilter(object):
     @staticmethod
     def filter(input_text: AnyStr) -> AnyStr:
-        result = re.sub(r'-\n', '', input_text)
-        result = re.sub(r'\n', ' ', result)
+        result = re.sub(r'-(\r)?\n', '', input_text)
+        result = re.sub(r'(\r)?\n', ' ', result)
         return result
 
 
