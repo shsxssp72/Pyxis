@@ -122,8 +122,8 @@ class TencentTranslationCommitHandler(AsyncTranslationCommitHandler):
 
 
 class HeadlessBrowserConfig(object):
-    page_load_wait_secs: int = 10
-    page_load_timeout_secs: int = 15
+    page_load_wait_secs: int = 180
+    page_load_timeout_secs: int = 180
 
 
 class HeadlessBrowserTranslationCommitHandler(AsyncTranslationCommitHandler, ABC):
@@ -172,6 +172,22 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
             except:
                 return False
 
+    class WhetherTranslatedDetectorBySuffix(object):
+        def __init__(self, locator):
+            self.locator = locator
+
+        def __call__(self, driver):
+            try:
+                element_text: AnyStr = driver.find_element(*self.locator).get_attribute('value')
+                if element_text is not None \
+                        and element_text.strip() != '' \
+                        and not element_text.strip().endswith('[...]'):
+                    return element_text
+                else:
+                    return False
+            except:
+                return False
+
     def __init__(self, source_language: AnyStr, target_language: AnyStr, extra_config: Dict):
         super().__init__(source_language, target_language, extra_config)
         self.driver.get("https://www.deepl.com/translator")
@@ -196,9 +212,8 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
     def translate(self, data: AnyStr) -> AnyStr:
         self.original_input.clear()
         self.original_input.send_keys(data)
-        result = self.wait.until(self.WhetherTranslatedDetectorByLength(
-            (By.XPATH, '//textarea[contains(@dl-test,"translator-target-input")]'),
-            self.word_count_policy[f'{self.source_language}-{self.target_language}'](data)))
+        result = self.wait.until(self.WhetherTranslatedDetectorBySuffix(
+            (By.XPATH, '//textarea[contains(@dl-test,"translator-target-input")]')))
         self.original_input.clear()
         return result
 
