@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from typing import AnyStr, Callable, Dict, Set
-import translators
 import threading
 from utils.logging_base import LoggingBase
 from selenium import webdriver
@@ -84,6 +83,7 @@ class AsyncTranslationCommitHandler(AbstractCommitHandler):
 @AsyncTranslationCommitHandler.TranslatorReadyNoticeDecorator
 class GoogleTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
+        import translators
         if self.target_language == 'zh':
             to_language: AnyStr = 'zh-CN'
         else:
@@ -94,6 +94,7 @@ class GoogleTranslationCommitHandler(AsyncTranslationCommitHandler):
 @AsyncTranslationCommitHandler.TranslatorReadyNoticeDecorator
 class BingTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
+        import translators
         if self.target_language == 'zh':
             to_language: AnyStr = 'zh-Hans'
         else:
@@ -104,6 +105,7 @@ class BingTranslationCommitHandler(AsyncTranslationCommitHandler):
 @AsyncTranslationCommitHandler.TranslatorReadyNoticeDecorator
 class BaiduTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
+        import translators
         if self.target_language == 'zh':
             to_language: AnyStr = 'zh'
         else:
@@ -114,6 +116,7 @@ class BaiduTranslationCommitHandler(AsyncTranslationCommitHandler):
 @AsyncTranslationCommitHandler.TranslatorReadyNoticeDecorator
 class TencentTranslationCommitHandler(AsyncTranslationCommitHandler):
     def translate(self, data: AnyStr) -> AnyStr:
+        import translators
         if self.target_language == 'zh':
             to_language: AnyStr = 'zh'
         else:
