@@ -155,7 +155,7 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
         'en-zh-ZH': lambda x: int(len(x.split()) * 0.7)
     }
 
-    class WhetherTranslatedDetectorByLength(object):
+    class WhetherTranslatedDetectorByLengthAndSuffix(object):
         def __init__(self, locator, estimated_length: int):
             self.locator = locator
             self.estimated_length: int = estimated_length
@@ -165,22 +165,7 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
                 element_text: AnyStr = driver.find_element(*self.locator).get_attribute('value')
                 if element_text is not None \
                         and element_text.strip() != '' \
-                        and len(element_text) >= self.estimated_length:
-                    return element_text
-                else:
-                    return False
-            except:
-                return False
-
-    class WhetherTranslatedDetectorBySuffix(object):
-        def __init__(self, locator):
-            self.locator = locator
-
-        def __call__(self, driver):
-            try:
-                element_text: AnyStr = driver.find_element(*self.locator).get_attribute('value')
-                if element_text is not None \
-                        and element_text.strip() != '' \
+                        and len(element_text) >= self.estimated_length \
                         and not element_text.strip().endswith('[...]'):
                     return element_text
                 else:
@@ -212,8 +197,9 @@ class DeepLBrowserTranslationCommitHandler(HeadlessBrowserTranslationCommitHandl
     def translate(self, data: AnyStr) -> AnyStr:
         self.original_input.clear()
         self.original_input.send_keys(data)
-        result = self.wait.until(self.WhetherTranslatedDetectorBySuffix(
-            (By.XPATH, '//textarea[contains(@dl-test,"translator-target-input")]')))
+        result = self.wait.until(self.WhetherTranslatedDetectorByLengthAndSuffix(
+            (By.XPATH, '//textarea[contains(@dl-test,"translator-target-input")]'),
+            self.word_count_policy[f'{self.source_language}-{self.target_language}'](data)))
         self.original_input.clear()
         return result
 
